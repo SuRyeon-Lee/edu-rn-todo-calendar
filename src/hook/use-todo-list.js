@@ -23,7 +23,7 @@ const defaultTodoList = [
 ];
 
 export const useTodoList = (selectedDate) => {
-  const [todoList, setTodoList] = useState([]);
+  const [todoList, setTodoList] = useState(defaultTodoList);
   const [input, setInput] = useState('');
 
   const addTodo = () => {
@@ -58,5 +58,12 @@ export const useTodoList = (selectedDate) => {
     setTodoList(newTodoList);
   };
 
-  return {};
+  return {
+    todoList,
+    addTodo,
+    removeTodo,
+    toggleTodo,
+    input,
+    setInput,
+  };
 };
