@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { useRef } from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -10,6 +11,7 @@ import {
   Pressable,
   TouchableOpacity,
   Keyboard,
+  Alert,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -40,10 +42,19 @@ export default function App() {
     add1Month,
   } = useCalendar(now);
 
-  const { todoList, addTodo, removeTodo, toggleTodo, input, setInput } =
-    useTodoList(selectedDate);
+  const {
+    todoList,
+    addTodo,
+    removeTodo,
+    toggleTodo,
+    input,
+    setInput,
+    resetInput,
+  } = useTodoList(selectedDate);
 
   const columns = getCalendarColumns(selectedDate);
+
+  const flatListRef = useRef(null);
 
   const onPressLeftArrow = subtract1Month;
   const onPressHeaderDate = showDatePicker;
@@ -77,9 +88,23 @@ export default function App() {
 
   const renderItem = ({ item: todo }) => {
     const isSuccess = todo.isSuccess;
-
+    const onPress = () => toggleTodo(todo.id);
+    const onLongPress = () => {
+      Alert.alert('삭제하겠습니까?', '', [
+        {
+          stlye: 'cancel', //스타일이 캔슬이면 자동으로 버튼 누르면 모달이 닫힘
+          text: '아니오',
+        },
+        {
+          text: '네',
+          onPress: () => removeTodo(todo.id), //cancel이 아닌경우는 onPress 함수 정의하기
+        },
+      ]);
+    };
     return (
-      <View
+      <Pressable
+        onPress={onPress}
+        onLongPress={onLongPress}
         style={{
           flexDirection: 'row',
           width: ITEM_WIDTH,
@@ -98,11 +123,38 @@ export default function App() {
           size={17}
           color={isSuccess ? '#595959' : '#bfbfbf'}
         />
-      </View>
+      </Pressable>
     );
   };
+  const scrollToEnd = () => {
+    {
+      /* 
+    flatList의 style이 flex: 1 로 꽉차있지 않으면 스크롤 제어시 오류 생김
+    그리고 flex 먹여도 완벽하게 해결되진 않음.
+    가장 좋은 방법은 끝지점의 y값을 알아오고 거길로 보내주는것
+    */
+    }
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd(); //시간차있어서 setTimeout에 넣어줘야함
+    }, 200); //200정도는 되야되는듯
+  };
 
-  const onPressAdd = () => {};
+  const onPressAdd = () => {
+    addTodo();
+    resetInput();
+    scrollToEnd();
+  };
+
+  const onSubmitEditing = () => {
+    addTodo();
+    resetInput();
+    scrollToEnd();
+  };
+
+  const onFocus = () => {
+    scrollToEnd();
+  };
+
   {
     /*
     Pressable:
@@ -147,10 +199,15 @@ export default function App() {
       >
         <View>
           <FlatList
+            ref={flatListRef}
             data={todoList}
-            contentContainerStyle={{ paddingTop: statusBarHeight }}
+            contentContainerStyle={{ paddingTop: statusBarHeight + 30 }}
             ListHeaderComponent={ListHeaderComponent}
             renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+            style={{
+              flex: 1, //요게 없음 scrollToEnd에서 오류 일으킴
+            }}
           />
 
           <AddTodoinput
@@ -158,6 +215,8 @@ export default function App() {
             onChangeText={setInput}
             placeholder={`${dayjs(selectedDate).format('M.D')}에 추가할 투두`}
             onPressAdd={onPressAdd}
+            onSubmitEditing={onSubmitEditing}
+            onFocus={onFocus}
           />
         </View>
       </KeyboardAvoidingView>
