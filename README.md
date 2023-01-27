@@ -20,3 +20,16 @@ npm install dayjs --save
 
 - [React Native DateTimePicker](https://github.com/react-native-datetimepicker/datetimepicker)
 - [React Native Modal DateTimePicker](https://github.com/mmazzarolo/react-native-modal-datetime-picker)
+
+<br/>
+
+## 🧳Async Storage
+
+- [Async Storage 설치 방법](https://docs.expo.dev/versions/latest/sdk/async-storage/)
+- [Async Storage 사용 방법](https://react-native-async-storage.github.io/async-storage/docs/usage/)
+- 어플을 삭제 후 재설치 하지 않는 한 데이터가 남아있도록 한다.
+- 모든 데이터를 string으로만 저장할 수 있어 `JSON.stringify()` 시킨후 저장하고 `JSON.parse()`로 꺼내와야 한다.
+
+```js
+npx expo install @react-native-async-storage/async-storage
+```

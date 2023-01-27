@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  TouchableOpacity,
   Keyboard,
   Alert,
 } from 'react-native';
